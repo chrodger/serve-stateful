@@ -18,13 +18,19 @@ exit
 # set params
 ##########
 
+# dfp dev
 $subId = "5893168b-6ec8-462d-b595-3516adb763cc"
 $rgName = "dev-dfp-try-eus2-01-rg"
+
+# dfp int
+$subId = "bda494f3-04c5-47db-97b5-590c78b003a5"
+$rgName = "dfptry-compute-eastus2-int-rg"
 
 $vmImage = "UbuntuLTS" # try Canonical:UbuntuServer:18.04-LTS:18.04.201901220  https://docs.microsoft.com/en-us/azure/virtual-machines/linux/cli-ps-findimage
 $vmBaseName = "statefulModel"
 $vmAdminName = "azureuser"
 $location = "eastus2"
+#$vmSize = "Standard_A2_v2"
 $vmSize = "Standard_A2_v2"
 $adminUsername = "azureuser"
 
@@ -38,6 +44,7 @@ $backendSubnetPrefix = "10.0.2.0/24"
 
 $nsgName = "statefulModelNsg"
 $nsgSshRuleName = "statefulModelSshRule"
+$appRuleName = "statefulModelAppRule"
 
 
 
@@ -83,6 +90,9 @@ az network nsg create `
     --resource-group $rgName `
     --name $nsgName
 
+
+# There is some service in my resource group that is auto-detecting and blocking SSH on 22.
+# I've put a command in cloud-init.txt that will set the SSH port to 8022 and restart the sshd service.
 az network nsg rule create `
     --resource-group $rgName `
     --nsg-name $nsgName `
@@ -91,10 +101,24 @@ az network nsg rule create `
     --source-address-prefixes "*" `
     --source-port-ranges "*" `
     --destination-address-prefixes "*" `
-    --destination-port-ranges 22 `
+    --destination-port-ranges 8022 `
     --access Allow `
     --protocol Tcp `
     --description "Allow ssh on port 22."
+
+# allow traffic through to the app
+az network nsg rule create `
+    --resource-group $rgName `
+    --nsg-name $nsgName `
+    --name $appRuleName `
+    --priority 1001 `
+    --source-address-prefixes "*" `
+    --source-port-ranges "*" `
+    --destination-address-prefixes "*" `
+    --destination-port-ranges 8034 `
+    --access Allow `
+    --protocol Tcp `
+    --description "Allow traffic through to the app."
 
 az network vnet create `
     --resource-group $rgName `
@@ -125,6 +149,11 @@ az network public-ip create `
     --name "${ipName}02" `
     --allocation-method static
 
+az network public-ip create `
+    --resource-group $rgName `
+    --name "${ipName}03" `
+    --allocation-method static
+
 
 ##########
 # create vms
@@ -135,16 +164,14 @@ az network public-ip create `
 # creates a NIC?
 az vm create `
     --resource-group $rgName `
-    --name "${vmBaseName}11" `
+    --name "${vmBaseName}Bench" `
     --vnet-name $vnetName `
     --subnet $frontendSubnetName `
     --nsg $nsgName `
-    --public-ip-address "${ipName}" `
+    --public-ip-address "${ipName}02" `
     --image $vmImage `
     --size $vmSize `
     --admin-username $adminUsername `
     --custom-data "C:\GitRepos\serve-stateful-model\cloud-init.txt" `
     --generate-ssh-keys # not sure where these are stored...
 
-
-    C:\GitRepos\serve-stateful-model\cloud-init.txt

@@ -7,10 +7,11 @@ runcmd:
   - echo "hello" >> /home/azureuser/tmp.txt
   - echo "Port 8022" | sudo tee -a /etc/ssh/sshd_config
   - sudo service sshd restart
-  - git clone https://github.com/chrodger/serve-stateful.git
-  - cd ~/serve-stateful
-  - pip3 install -r requirements.txt
-  - python3 waitress_server.py
+#  - cd /home/azureuser
+#  - git clone https://github.com/chrodger/serve-stateful.git
+#  - cd /home/azureuser/serve-stateful
+#  - pip3 install -r requirements.txt
+#  - python3 waitress_server.py
 
 
 
