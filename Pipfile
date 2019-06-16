@@ -10,6 +10,8 @@ flask = "*"
 keras = "*"
 tensorflow = "*"
 flask-restful = "*"
+waitress = "*"
+gevent = "*"
 
 [requires]
 python_version = "3.6"

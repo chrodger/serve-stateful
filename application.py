@@ -2,7 +2,7 @@
 # create requirements.txt with (no shell required, run from serv-stateful-model dir):
 # pipenv lock -r > requirements.txt
 
-# stress test locally with apache ab:
+# stress test locally with apache ab (using windows powershell):
 # C:\apache\httpd-2.4.39-o102s-x64-vc14\Apache24\bin> .\ab -n 1000 -c 10 http://localhost:8034/model
 
 
@@ -13,13 +13,7 @@ from flask import Flask, request
 from flask_restful import Api, Resource, reqparse
 import json
 import os
-import sys
 
-hostStr = ""
-if(len(sys.argv) > 1 and sys.argv[1] == "local"):
-    hostStr = "localhost"
-else:
-    hostStr = "0.0.0.0"
 
 modelPath = os.path.join(os.getcwd(), "models", 'keras-model00.h5')
 # model = load_model(".\\keras-boston-model00.h5")
@@ -67,6 +61,8 @@ class Model(Resource):
 api.add_resource(Model, "/model")
 # app.run(debug=True, host=hostStr, port=8034) # debug=True also enables reloader
 # app.run(debug=False, host=hostStr, port=8034, threaded=False) # faster ?!!
-app.run(debug=False, host=hostStr, port=8034, threaded=True)
+# app.run(debug=False, host=hostStr, port=8034, threaded=True)
+
+# app.run(debug=False, host=hostStr, port=8034, threaded=False, processes=6) # doesn't work on Windows
 
 # m.predict(x_test[1:2])
