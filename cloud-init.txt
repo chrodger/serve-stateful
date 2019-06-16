@@ -1,0 +1,36 @@
+#cloud-config
+package_upgrade: true
+package_update: true
+packages:
+  - python3-pip
+runcmd:
+  - echo "hello" >> /home/azureuser/tmp.txt
+  - echo "Port 8022" | sudo tee -a /etc/ssh/sshd_config
+  - sudo service sshd restart
+  - git clone https://github.com/chrodger/serve-stateful.git
+  - cd ~/serve-stateful
+  - pip3 install -r requirements.txt
+
+
+
+
+
+
+#sudo apt update
+#sudo DEBIAN_FRONTEND=noninteractive apt -yq upgrade
+#sudo apt -yq install python3-pip
+#
+## https://serverfault.com/questions/227190/how-do-i-ask-apt-get-to-skip-any-interactive-post-install-configuration-steps
+#
+#
+## https://www.godaddy.com/help/changing-the-ssh-port-for-your-linux-server-7306
+#sudo cat "Port 8022" >> /etc/ssh/sshd_config
+#sudo service sshd restart
+#
+#...
+#sudo reboot # ?
+#
+#ssh azureuser@52.177.79.202 -p 8022
+## in local bash:
+#remove 52.... from ~/.ssh/known_hosts
+

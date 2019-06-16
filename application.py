@@ -12,7 +12,7 @@ from flask_restful import Api, Resource, reqparse
 import json
 import os
 
-modelPath = os.path.join(os.getcwd(), '.\\models\\keras-model00.h5')
+modelPath = os.path.join(os.getcwd(), "models", 'keras-model00.h5')
 # model = load_model(".\\keras-boston-model00.h5")
 model = load_model(modelPath)
 model._make_predict_function()
