@@ -2,6 +2,9 @@
 # create requirements.txt with (no shell required, run from serv-stateful-model dir):
 # pipenv lock -r > requirements.txt
 
+# stress test locally with apache ab:
+# C:\apache\httpd-2.4.39-o102s-x64-vc14\Apache24\bin> .\ab -n 1000 -c 10 http://localhost:8034/model
+
 
 from keras.models import load_model
 import numpy as np
@@ -63,6 +66,7 @@ class Model(Resource):
 
 api.add_resource(Model, "/model")
 # app.run(debug=True, host=hostStr, port=8034) # debug=True also enables reloader
-app.run(debug=False, host=hostStr, port=8034)
+# app.run(debug=False, host=hostStr, port=8034, threaded=False) # faster ?!!
+app.run(debug=False, host=hostStr, port=8034, threaded=True)
 
 # m.predict(x_test[1:2])

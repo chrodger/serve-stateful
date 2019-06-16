@@ -135,13 +135,16 @@ az network public-ip create `
 # creates a NIC?
 az vm create `
     --resource-group $rgName `
-    --name "${vmBaseName}10" `
+    --name "${vmBaseName}11" `
     --vnet-name $vnetName `
     --subnet $frontendSubnetName `
     --nsg $nsgName `
-    --public-ip-address "${ipName}02" `
+    --public-ip-address "${ipName}" `
     --image $vmImage `
     --size $vmSize `
     --admin-username $adminUsername `
-    --custom-data "C:\GitRepos\chrodger\ato-poc\keras-sandbox-2\cloud-init.txt" `
+    --custom-data "C:\GitRepos\serve-stateful-model\cloud-init.txt" `
     --generate-ssh-keys # not sure where these are stored...
+
+
+    C:\GitRepos\serve-stateful-model\cloud-init.txt
