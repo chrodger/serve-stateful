@@ -12,11 +12,11 @@ import json
 import os
 import sys
 
-host = ""
+hostStr = ""
 if(len(sys.argv) > 1 and sys.argv[1] == "local"):
-    host = "localhost"
+    hostStr = "localhost"
 else:
-    host = "0.0.0.0"
+    hostStr = "0.0.0.0"
 
 modelPath = os.path.join(os.getcwd(), "models", 'keras-model00.h5')
 # model = load_model(".\\keras-boston-model00.h5")
@@ -62,7 +62,7 @@ class Model(Resource):
         return ret, 201
 
 api.add_resource(Model, "/model")
-# app.run(debug=True, host='localhost', port=8034) # debug=True also enables reloader
-app.run(debug=False, host='localhost', port=8034)
+# app.run(debug=True, host=hostStr, port=8034) # debug=True also enables reloader
+app.run(debug=False, host=hostStr, port=8034)
 
 # m.predict(x_test[1:2])
