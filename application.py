@@ -6,11 +6,17 @@
 from keras.models import load_model
 import numpy as np
 
-
 from flask import Flask, request
 from flask_restful import Api, Resource, reqparse
 import json
 import os
+import sys
+
+host = ""
+if(len(sys.argv) > 1 and sys.argv[1] == "local"):
+    host = "localhost"
+else:
+    host = "0.0.0.0"
 
 modelPath = os.path.join(os.getcwd(), "models", 'keras-model00.h5')
 # model = load_model(".\\keras-boston-model00.h5")
