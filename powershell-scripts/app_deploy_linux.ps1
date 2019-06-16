@@ -23,16 +23,16 @@ $subId = "5893168b-6ec8-462d-b595-3516adb763cc"
 $rgName = "dev-dfp-try-eus2-01-rg"
 
 # dfp int
-$subId = "bda494f3-04c5-47db-97b5-590c78b003a5"
-$rgName = "dfptry-compute-eastus2-int-rg"
+#$subId = "bda494f3-04c5-47db-97b5-590c78b003a5"
+#$rgName = "dfptry-compute-eastus2-int-rg"
 
 $vmImage = "UbuntuLTS" # try Canonical:UbuntuServer:18.04-LTS:18.04.201901220  https://docs.microsoft.com/en-us/azure/virtual-machines/linux/cli-ps-findimage
 $vmBaseName = "statefulModel"
-$vmAdminName = "azureuser"
 $location = "eastus2"
 #$vmSize = "Standard_A2_v2"
 $vmSize = "Standard_A2_v2"
 $adminUsername = "azureuser"
+$cloudInitPath = "C:\GitRepos\serve-stateful-model\cloud-init.txt"
 
 $ipName = "statefulModelPublicIPAddress"
 $vnetName = "statefulModelVnet"
@@ -45,6 +45,15 @@ $backendSubnetPrefix = "10.0.2.0/24"
 $nsgName = "statefulModelNsg"
 $nsgSshRuleName = "statefulModelSshRule"
 $appRuleName = "statefulModelAppRule"
+
+$scaleSetName = "statefulModelScaleSet"
+$loadBalancerRuleName = "statefulModelLBAllowAppTraffic"
+
+$scaleSetPublicIpName = "statefulModelScaleSetPublicIp"
+$scaleSetLoadBalancerName = "statefulModelScaleSetLoadBalancer"
+$scaleSetBackendPoolName = "statefulModelBackendPool"
+
+$appPort = "8034"
 
 
 
@@ -156,7 +165,7 @@ az network public-ip create `
 
 
 ##########
-# create vms
+# create single vm
 ##########
 
 # creates a disk?
@@ -172,6 +181,50 @@ az vm create `
     --image $vmImage `
     --size $vmSize `
     --admin-username $adminUsername `
-    --custom-data "C:\GitRepos\serve-stateful-model\cloud-init.txt" `
+    --custom-data $cloudInitPath `
     --generate-ssh-keys # not sure where these are stored...
 
+    
+##########
+# create vm scale set
+##########
+
+# create a load balancer?
+
+# create the vms
+az vmss create `
+  --resource-group $rgName `
+  --name $scaleSetName `
+  --image $vmImage `
+  --upgrade-policy-mode automatic `
+  --custom-data $cloudInitPath `
+  --admin-username $adminUsername `
+  --instance-count 2 `
+  --vm-sku $vmSize `
+  --vnet-name $vnetName `
+  --subnet $backendSubnetName `
+  --public-ip-address $scaleSetPublicIpName `
+  --load-balancer $scaleSetLoadBalancerName `
+  --backend-pool-name $scaleSetBackendPoolName `
+  --generate-ssh-keys
+  # network security group? - no NSG?
+  # ip address? - made its own... will set my own name later
+  # load balancer? - created a load balancer... will set my own name later
+  # backend-pool? - created a backend pool ("statefulModelScaleSetLBBEPool"), but it is not listed in resource group as a resource... can also set my own name for this
+
+
+az network lb rule create `
+  --resource-group $rgName `
+  --name $loadBalancerRuleName `
+  --lb-name $scaleSetLoadBalancerName `
+  --frontend-port $appPort `
+  --backend-pool-name $scaleSetBackendPoolName `
+  --backend-port $appPort `
+  --protocol tcp
+
+  #--frontend-ip-name "statefulModelScaleSetLBPublicIP" ` # this was required in the docs, but gives an error when run? possible version mismatch...
+
+
+az network lb show `
+    --resource-group $rgName `
+    --name "statefulModelScaleSetLB" 
