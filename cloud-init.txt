@@ -10,7 +10,7 @@ runcmd:
   - git clone https://github.com/chrodger/serve-stateful.git
   - cd ~/serve-stateful
   - pip3 install -r requirements.txt
-  - python3 application.py
+  - python3 waitress_server.py
 
 
 
