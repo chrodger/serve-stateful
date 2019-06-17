@@ -36,7 +36,7 @@ print(rows.current_rows.__len__())
 # Ordering by timestamp desc means when we do "LIMIT n", we get the n rows with greatest time stamps (most recent).
 session.execute('create table user_visits(user_id bigint, ts timestamp, features text, primary key ((user_id), ts))'
     + 'with clustering order by (ts desc);')
-session.execute('drop table user_visits;')
+# session.execute('drop table user_visits;')
 
 features = "WXYZ" * 3
 for j in range(0, 2):

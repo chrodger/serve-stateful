@@ -17,6 +17,10 @@ import json
 import os
 import random
 from datetime import datetime
+import json
+from ssl import PROTOCOL_TLSv1_2
+from requests.utils import DEFAULT_CA_BUNDLE_PATH
+from cassandra.auth import PlainTextAuthProvider
 
 def getApp(env):
 
@@ -27,16 +31,55 @@ def getApp(env):
         minUserId = 0
         maxUserId = 3
         numRecentVisitsToRetrieve = 5
-        cluster = Cluster()
-        session = cluster.connect()
-        session.execute("use keyspace_state_aa;")
-        rows = session.execute('select * from model_state')
-        print('cassandra model_state rows:' + str(rows.current_rows.__len__()))
+
+        confPath = "C:\\users\\chrodger\\onedrive - microsoft\\stateful-model\\conf.json"
+        with open(confPath, 'r') as jsonFile:
+            conf = json.load(jsonFile)
+        h = conf["host"]
+        p = conf["port"]
+        k = conf["keyspace"]
+        if(conf["cassLocation"] == "remote"):
+            u = conf["username"]
+            pwd = conf["password"]
+            ssl_opts = {'ca_certs': DEFAULT_CA_BUNDLE_PATH, 'ssl_version': PROTOCOL_TLSv1_2, }
+            auth_provider = PlainTextAuthProvider(username=u, password=pwd)
+            cluster = Cluster([h], port=p, auth_provider=auth_provider, ssl_options=ssl_opts)
+        else:
+            cluster = Cluster([h], p)
+
+
     else:
         minUserId = 0
         maxUserId = (1000 * 1000) - 1
         numRecentVisitsToRetrieve = 5
-        session = 1
+
+        confPath = '/home/azureuser/conf.json' # this file is written out by cloud-init.txt
+        with open(confPath, 'r') as jsonFile:
+            conf = json.load(jsonFile)
+        h = conf["host"]
+        p = conf["port"]
+        k = conf["keyspace"]
+        if(conf["cassLocation"] == "remote"):
+            u = conf["username"]
+            pwd = conf["password"]
+            ssl_opts = {'ca_certs': DEFAULT_CA_BUNDLE_PATH, 'ssl_version': PROTOCOL_TLSv1_2, }
+            auth_provider = PlainTextAuthProvider(username=u, password=pwd)
+            cluster = Cluster([h], port=p, auth_provider=auth_provider, ssl_options=ssl_opts)
+        else:
+            cluster = Cluster([h], p) # cassandra will always be remote when app is running remote. this is unreachable.
+
+
+    session = cluster.connect()
+    session.execute('CREATE KEYSPACE IF NOT EXISTS ' + k + ' WITH replication = {\'class\': \'NetworkTopologyStrategy\', \'datacenter\' : \'1\' }')
+    session.execute("use " + k + ";")
+
+    session.execute('create table if not exists model_state(user_id bigint, state text, primary key ((user_id))  );')
+    session.execute('create table if not exists user_visits(user_id bigint, ts timestamp, features text,'
+        + ' primary key ((user_id), ts)) with clustering order by (ts desc);')
+
+    rows = session.execute("SELECT table_name FROM system_schema.tables WHERE keyspace_name = '" + k + "';")
+    print("tables available in keyspace:")
+    for row in rows: print(row)
 
     modelPath = os.path.join(os.getcwd(), "models", 'keras-model00.h5')
     # model = load_model(".\\keras-boston-model00.h5")
@@ -46,9 +89,7 @@ def getApp(env):
     app = Flask(__name__)
     api = Api(app)
 
-
-    class Model(Resource):
-
+    class ModelCass(Resource):
         def get(self):
 
             # Make some dummy calls to cassandra
@@ -62,6 +103,17 @@ def getApp(env):
             features = "WXYZ" * 3
             insertStatus = session.execute('insert into user_visits(user_id, ts, features) values (%s, %s, %s);', [userId, ts, features])
 
+            features = np.asarray([[1.0]*13])
+            score = model.predict(features[0:1])[0].tolist()
+            print(score)
+            ret = {
+                "score":json.dumps(score)
+            }
+            return ret, 201
+
+    class Model(Resource):
+
+        def get(self):
             features = np.asarray([[1.0]*13])
             score = model.predict(features[0:1])[0].tolist()
             print(score)
@@ -94,6 +146,7 @@ def getApp(env):
             return ret, 201
 
     api.add_resource(Model, "/model")
+    api.add_resource(ModelCass, "/model-cass")
     # app.run(debug=True, host=hostStr, port=8034) # debug=True also enables reloader
     # app.run(debug=False, host=hostStr, port=8034, threaded=False) # faster ?!!
     # app.run(debug=False, host=hostStr, port=8034, threaded=True)

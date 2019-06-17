@@ -13,6 +13,7 @@ flask-restful = "*"
 waitress = "*"
 gevent = "*"
 cassandra-driver = "*"
+requests = "*"
 
 [requires]
 python_version = "3.6"
