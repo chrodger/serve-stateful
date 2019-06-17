@@ -173,11 +173,11 @@ az network public-ip create `
 # creates a NIC?
 az vm create `
     --resource-group $rgName `
-    --name "${vmBaseName}Bench" `
+    --name "${vmBaseName}17" `
     --vnet-name $vnetName `
     --subnet $frontendSubnetName `
     --nsg $nsgName `
-    --public-ip-address "${ipName}02" `
+    --public-ip-address "${ipName}01" `
     --image $vmImage `
     --size $vmSize `
     --admin-username $adminUsername `
