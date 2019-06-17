@@ -2,6 +2,7 @@
 absl-py==0.7.1
 aniso8601==7.0.0
 astor==0.8.0
+cassandra-driver==3.18.0
 cffi==1.12.3 ; sys_platform == 'win32' and platform_python_implementation == 'CPython'
 click==7.0
 flask-restful==0.3.7

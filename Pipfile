@@ -12,6 +12,7 @@ tensorflow = "*"
 flask-restful = "*"
 waitress = "*"
 gevent = "*"
+cassandra-driver = "*"
 
 [requires]
 python_version = "3.6"
