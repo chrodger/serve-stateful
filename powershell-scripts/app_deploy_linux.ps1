@@ -173,16 +173,16 @@ az network public-ip create `
 # creates a NIC?
 az vm create `
     --resource-group $rgName `
-    --name "${vmBaseName}17" `
+    --name "${vmBaseName}18" `
     --vnet-name $vnetName `
     --subnet $frontendSubnetName `
     --nsg $nsgName `
-    --public-ip-address "${ipName}01" `
+    --public-ip-address "${ipName}" `
     --image $vmImage `
     --size $vmSize `
     --admin-username $adminUsername `
     --custom-data $cloudInitPath `
-    --generate-ssh-keys # not sure where these are stored...
+    --generate-ssh-keys # this is using a public/private key pair that lives in ~/.ssh
 
     
 ##########
