@@ -69,6 +69,7 @@ def getApp(env):
             cluster = Cluster([h], p) # cassandra will always be remote when app is running remote. this is unreachable.
 
 
+
     session = cluster.connect()
     session.execute('CREATE KEYSPACE IF NOT EXISTS ' + k + ' WITH replication = {\'class\': \'NetworkTopologyStrategy\', \'datacenter\' : \'1\' }')
     session.execute("use " + k + ";")

@@ -19,20 +19,20 @@ exit
 ##########
 
 # dfp dev
-$subId = "5893168b-6ec8-462d-b595-3516adb763cc"
-$rgName = "dev-dfp-try-eus2-01-rg"
+#$subId = "5893168b-6ec8-462d-b595-3516adb763cc"
+#$rgName = "dev-dfp-try-eus2-01-rg"
 
 # dfp int
-#$subId = "bda494f3-04c5-47db-97b5-590c78b003a5"
-#$rgName = "dfptry-compute-eastus2-int-rg"
+$subId = "bda494f3-04c5-47db-97b5-590c78b003a5"
+$rgName = "dfptry-compute-eastus2-int-rg"
 
 $vmImage = "UbuntuLTS" # try Canonical:UbuntuServer:18.04-LTS:18.04.201901220  https://docs.microsoft.com/en-us/azure/virtual-machines/linux/cli-ps-findimage
 $vmBaseName = "statefulModel"
 $location = "eastus2"
 #$vmSize = "Standard_A2_v2"
-$vmSize = "Standard_A2_v2"
+$vmSize = "Standard_A4_v2"
 $adminUsername = "azureuser"
-$cloudInitPath = "C:\GitRepos\serve-stateful-model\cloud-init.txt"
+$cloudInitPath = "C:\Users\chrodger\OneDrive - Microsoft\stateful-model\cloud-init.txt"
 
 $ipName = "statefulModelPublicIPAddress"
 $vnetName = "statefulModelVnet"
@@ -113,7 +113,7 @@ az network nsg rule create `
     --destination-port-ranges 8022 `
     --access Allow `
     --protocol Tcp `
-    --description "Allow ssh on port 22."
+    --description "Allow ssh on port 8022."
 
 # allow traffic through to the app
 az network nsg rule create `
@@ -155,17 +155,17 @@ az network public-ip create `
 
 az network public-ip create `
     --resource-group $rgName `
-    --name "${ipName}02" `
+    --name "${ipName}01" `
     --allocation-method static
 
 az network public-ip create `
     --resource-group $rgName `
-    --name "${ipName}03" `
+    --name "${ipName}02" `
     --allocation-method static
 
 
 ##########
-# create single vm
+# create single vm (use for benchmarking?)
 ##########
 
 # creates a disk?
@@ -173,7 +173,7 @@ az network public-ip create `
 # creates a NIC?
 az vm create `
     --resource-group $rgName `
-    --name "${vmBaseName}18" `
+    --name "${vmBaseName}21" `
     --vnet-name $vnetName `
     --subnet $frontendSubnetName `
     --nsg $nsgName `
@@ -225,6 +225,6 @@ az network lb rule create `
   #--frontend-ip-name "statefulModelScaleSetLBPublicIP" ` # this was required in the docs, but gives an error when run? possible version mismatch...
 
 
-az network lb show `
-    --resource-group $rgName `
-    --name "statefulModelScaleSetLB" 
+#az network lb show `
+#    --resource-group $rgName `
+#    --name "statefulModelScaleSetLB" 

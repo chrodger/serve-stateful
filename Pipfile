@@ -14,6 +14,10 @@ waitress = "*"
 gevent = "*"
 cassandra-driver = "*"
 requests = "*"
+cherrypy = "*"
+mod-wsgi = "==4.6.7"
+uwsgi = "*"
+mod-wsgi-httpd = "*"
 
 [requires]
 python_version = "3.6"
