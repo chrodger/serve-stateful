@@ -1,6 +1,8 @@
 
 # create requirements.txt with (no shell required, run from serv-stateful-model dir):
 # pipenv lock -r > requirements.txt
+# UPDATE: pipenv lock is not necessary
+# On deployed vm, just do pipenv install
 
 # stress test locally with apache ab (using windows powershell):
 # C:\apache\httpd-2.4.39-o102s-x64-vc14\Apache24\bin> .\ab -n 1000 -c 10 http://localhost:8034/model
@@ -9,13 +11,9 @@
 from keras.models import load_model
 import numpy as np
 
-from cassandra.cluster import Cluster
-
 from flask import Flask, request
-from flask_restful import Api, Resource, reqparse
+from flask_restful import Api, Resource
 import os
-import random
-from datetime import datetime
 import json
 
 

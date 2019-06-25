@@ -1,5 +1,5 @@
 ﻿
-# exit to prevent full runs when accidentally clicking "Run Script"
+# exit to prevent full runs on accidentally clicking "Run Script"
 exit
 
 
@@ -23,8 +23,12 @@ exit
 #$rgName = "dev-dfp-try-eus2-01-rg"
 
 # dfp int
-$subId = "bda494f3-04c5-47db-97b5-590c78b003a5"
-$rgName = "dfptry-compute-eastus2-int-rg"
+#$subId = "bda494f3-04c5-47db-97b5-590c78b003a5"
+#$rgName = "dfptry-compute-eastus2-int-rg"
+
+# ato sandbox
+$subId = "1f4c6f4d-ff85-46a8-93da-0080f4b66543"
+$rgName = "chrodger-dev00"
 
 $vmImage = "UbuntuLTS" # try Canonical:UbuntuServer:18.04-LTS:18.04.201901220  https://docs.microsoft.com/en-us/azure/virtual-machines/linux/cli-ps-findimage
 $vmBaseName = "statefulModel"
@@ -173,11 +177,11 @@ az network public-ip create `
 # creates a NIC?
 az vm create `
     --resource-group $rgName `
-    --name "${vmBaseName}21" `
+    --name "${vmBaseName}22" `
     --vnet-name $vnetName `
     --subnet $frontendSubnetName `
     --nsg $nsgName `
-    --public-ip-address "${ipName}" `
+    --public-ip-address "${ipName}05" `
     --image $vmImage `
     --size $vmSize `
     --admin-username $adminUsername `
