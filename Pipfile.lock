@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "462fd04b13c9a12643cea61e7ce5af4b4b2ad4f899ff9ed1acc24f027396b7e7"
+            "sha256": "91e86e40017585924a9e8d05fee0d20debfd3167e1e122f5d24ae5c7bc8fecfb"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -42,13 +42,6 @@
                 "sha256:f0b0e4eba956de51238e17573b7087e852dfe9854afd2e9c873f73fc0ca0a6dd"
             ],
             "version": "==1.5"
-        },
-        "cassandra-driver": {
-            "hashes": [
-                "sha256:71c5bcded827deaa5da8fcca84891eb9024520653f49c9ce49d508439b3b2af1"
-            ],
-            "index": "pypi",
-            "version": "==3.18.0"
         },
         "certifi": {
             "hashes": [
@@ -107,11 +100,11 @@
         },
         "cherrypy": {
             "hashes": [
-                "sha256:3c7b27fd1af4964434d821cd139b8d05c8f7fe4f37ae146fddb3f861d80a1da7",
-                "sha256:6585c19b5e4faffa3613b5bf02c6a27dcc4c69a30d302aba819639a2af6fa48b"
+                "sha256:48de31ba3db04c5354a0fcf8acf21a9c5190380013afca746d50237c9ebe70f0",
+                "sha256:641b51570158dd301da5d569085c04fe7f2cc98474d103f8137d8dbe36b2f6e7"
             ],
             "index": "pypi",
-            "version": "==18.1.1"
+            "version": "==18.1.2"
         },
         "click": {
             "hashes": [
