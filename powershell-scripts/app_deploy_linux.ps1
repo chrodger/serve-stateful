@@ -33,11 +33,12 @@ $rgName = "chrodger-dev00"
 $vmImage = "UbuntuLTS" # try Canonical:UbuntuServer:18.04-LTS:18.04.201901220  https://docs.microsoft.com/en-us/azure/virtual-machines/linux/cli-ps-findimage
 $vmBaseName = "statefulModel"
 $location = "westus2"
+# linux vm pricing: https://azure.microsoft.com/en-us/pricing/details/virtual-machines/linux/#a-series
 #$vmSize = "Standard_A2_v2"
-#$vmSize = "Standard_A4_v2"
-$vmSize = "Standard_DS3_v2"
+#$vmSize = "Standard_A4_v2" # 4 vcpu, 8GB RAM, $0.191/hour
+$vmSize = "Standard_DS3_v2" # 4 vcpu, 14GB RAM, $0.229/hour
 $adminUsername = "azureuser"
-$cloudInitPath = "C:\Users\chrodger\OneDrive - Microsoft\stateful-model\cloud-init.txt"
+$cloudInitPath = "C:\Users\chrodger\OneDrive - Microsoft\stateful-model\cloud-init.txt" # don't store this in source, it contains pwds
 
 $ipName = "statefulModelPublicIPAddress"
 $vnetName = "statefulModelVnet"
@@ -59,7 +60,7 @@ $scaleSetLoadBalancerName = "statefulModelScaleSetLoadBalancer"
 $scaleSetBackendPoolName = "statefulModelBackendPool"
 $scaleSetFrontendPoolName = "statefulModelFrontendPool"
 
-$appPort = "8034"
+$appPort = "8034" # must match app port in cloud-init.txt
 
 
 
@@ -121,6 +122,9 @@ az network nsg create `
 #    --access Allow `
 #    --protocol Tcp `
 #    --description "Allow ssh on port 8022."
+
+# Nevermind, even after port cleanup service runs, I can still ssh from SAW machine.
+# Be sure to comment out port change in cloud-init.txt
 az network nsg rule create `
     --resource-group $rgName `
     --nsg-name $nsgName `
@@ -193,16 +197,16 @@ az network public-ip create `
 # creates a NIC?
 az vm create `
     --resource-group $rgName `
-    --name "${vmBaseName}01" `
+    --name "${vmBaseName}00" `
     --vnet-name $vnetName `
     --subnet $frontendSubnetName `
     --nsg $nsgName `
-    --public-ip-address "${ipName}01" `
+    --public-ip-address "${ipName}00" `
     --image $vmImage `
     --size $vmSize `
     --admin-username $adminUsername `
     --custom-data $cloudInitPath `
-    --generate-ssh-keys # this is using a public/private key pair that lives in ~/.ssh (git bash)
+    --generate-ssh-keys # this is using a public/private key pair that lives in local devl machine ~/.ssh (git bash)
 
     
 ##########
