@@ -32,9 +32,10 @@ $rgName = "chrodger-dev00"
 
 $vmImage = "UbuntuLTS" # try Canonical:UbuntuServer:18.04-LTS:18.04.201901220  https://docs.microsoft.com/en-us/azure/virtual-machines/linux/cli-ps-findimage
 $vmBaseName = "statefulModel"
-$location = "eastus2"
+$location = "westus2"
 #$vmSize = "Standard_A2_v2"
-$vmSize = "Standard_A4_v2"
+#$vmSize = "Standard_A4_v2"
+$vmSize = "Standard_DS3_v2"
 $adminUsername = "azureuser"
 $cloudInitPath = "C:\Users\chrodger\OneDrive - Microsoft\stateful-model\cloud-init.txt"
 
@@ -56,6 +57,7 @@ $loadBalancerRuleName = "statefulModelLBAllowAppTraffic"
 $scaleSetPublicIpName = "statefulModelScaleSetPublicIp"
 $scaleSetLoadBalancerName = "statefulModelScaleSetLoadBalancer"
 $scaleSetBackendPoolName = "statefulModelBackendPool"
+$scaleSetFrontendPoolName = "statefulModelFrontendPool"
 
 $appPort = "8034"
 
@@ -101,11 +103,24 @@ az account set --subscription $subId
 
 az network nsg create `
     --resource-group $rgName `
-    --name $nsgName
+    --name $nsgName `
+    --location $location
 
 
 # There is some service in my resource group that is auto-detecting and blocking SSH on 22.
 # I've put a command in cloud-init.txt that will set the SSH port to 8022 and restart the sshd service.
+#az network nsg rule create `
+#    --resource-group $rgName `
+#    --nsg-name $nsgName `
+#    --name $nsgSshRuleName `
+#    --priority 1000 `
+#    --source-address-prefixes "*" `
+#    --source-port-ranges "*" `
+#    --destination-address-prefixes "*" `
+#    --destination-port-ranges 8022 `
+#    --access Allow `
+#    --protocol Tcp `
+#    --description "Allow ssh on port 8022."
 az network nsg rule create `
     --resource-group $rgName `
     --nsg-name $nsgName `
@@ -114,10 +129,10 @@ az network nsg rule create `
     --source-address-prefixes "*" `
     --source-port-ranges "*" `
     --destination-address-prefixes "*" `
-    --destination-port-ranges 8022 `
+    --destination-port-ranges 22 `
     --access Allow `
     --protocol Tcp `
-    --description "Allow ssh on port 8022."
+    --description "Allow ssh on port 22."
 
 # allow traffic through to the app
 az network nsg rule create `
@@ -136,7 +151,8 @@ az network nsg rule create `
 az network vnet create `
     --resource-group $rgName `
     --name $vnetName `
-    --address-prefix $vnetPrefix
+    --address-prefix $vnetPrefix `
+    --location $location
 
 az network vnet subnet create `
     --resource-group $rgName `
@@ -154,7 +170,7 @@ az network vnet subnet create `
 
 az network public-ip create `
     --resource-group $rgName `
-    --name $ipName `
+    --name ${ipName}00 `
     --allocation-method static
 
 az network public-ip create `
@@ -177,16 +193,16 @@ az network public-ip create `
 # creates a NIC?
 az vm create `
     --resource-group $rgName `
-    --name "${vmBaseName}22" `
+    --name "${vmBaseName}01" `
     --vnet-name $vnetName `
     --subnet $frontendSubnetName `
     --nsg $nsgName `
-    --public-ip-address "${ipName}05" `
+    --public-ip-address "${ipName}01" `
     --image $vmImage `
     --size $vmSize `
     --admin-username $adminUsername `
     --custom-data $cloudInitPath `
-    --generate-ssh-keys # this is using a public/private key pair that lives in ~/.ssh
+    --generate-ssh-keys # this is using a public/private key pair that lives in ~/.ssh (git bash)
 
     
 ##########
@@ -206,10 +222,10 @@ az vmss create `
   --instance-count 2 `
   --vm-sku $vmSize `
   --vnet-name $vnetName `
-  --subnet $backendSubnetName `
+  --subnet $frontendSubnetName `
   --public-ip-address $scaleSetPublicIpName `
   --load-balancer $scaleSetLoadBalancerName `
-  --backend-pool-name $scaleSetBackendPoolName `
+  --backend-pool-name $scaleSetFrontendPoolName `
   --generate-ssh-keys
   # network security group? - no NSG?
   # ip address? - made its own... will set my own name later
@@ -222,7 +238,7 @@ az network lb rule create `
   --name $loadBalancerRuleName `
   --lb-name $scaleSetLoadBalancerName `
   --frontend-port $appPort `
-  --backend-pool-name $scaleSetBackendPoolName `
+  --backend-pool-name $scaleSetFrontendPoolName `
   --backend-port $appPort `
   --protocol tcp
 
