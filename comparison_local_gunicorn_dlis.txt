@@ -1,0 +1,211 @@
+
+##########
+## notes
+##########
+
+# In all cases, used 10k requests.
+# Adjusted concurrency for each stress test until mean latency arrived at roughly upper limit of admissible overhead, 15ms.
+
+# payload consumed by each endpoint:
+{"vec":[[24], [253], [215], [215], [38645], [686], [956], [2640], [89970], [325], [967], [325], [12909], [300], [8645], [18645], [686], [2252], [759], [667], [1823], [25458], [408], [56222], [4199], [8007], [948], [481], [586], [379], [742], [767], [742]]}
+
+
+##########
+## local apache bench hitting single-core flask app
+##########
+
+PS C:\apache-web-server\httpd-2.4.39-o102s-x64-vc14\Apache24\bin> .\ab -n 10000 -c 6 http://localhost:5000/model
+This is ApacheBench, Version 2.3 <$Revision: 1843412 $>
+Copyright 1996 Adam Twiss, Zeus Technology Ltd, http://www.zeustech.net/
+Licensed to The Apache Software Foundation, http://www.apache.org/
+
+Benchmarking localhost (be patient)
+Completed 1000 requests
+Completed 2000 requests
+Completed 3000 requests
+Completed 4000 requests
+Completed 5000 requests
+Completed 6000 requests
+Completed 7000 requests
+Completed 8000 requests
+Completed 9000 requests
+Completed 10000 requests
+Finished 10000 requests
+
+
+Server Software:        Werkzeug/0.15.4
+Server Hostname:        localhost
+Server Port:            5000
+
+Document Path:          /model
+Document Length:        292 bytes
+
+Concurrency Level:      6
+Time taken for tests:   25.507 seconds
+Complete requests:      10000
+Failed requests:        0
+Total transferred:      4440000 bytes
+HTML transferred:       2920000 bytes
+Requests per second:    392.05 [#/sec] (mean)
+Time per request:       15.304 [ms] (mean)
+Time per request:       2.551 [ms] (mean, across all concurrent requests)
+Transfer rate:          169.99 [Kbytes/sec] received
+
+Connection Times (ms)
+              min  mean[+/-sd] median   max
+Connect:        0    0   0.4      0       1
+Processing:     4   14   3.6     14      67
+Waiting:        3   12   3.5     12      66
+Total:          4   14   3.6     14      67
+
+Percentage of the requests served within a certain time (ms)
+  50%     14
+  66%     15
+  75%     16
+  80%     17
+  90%     19
+  95%     20
+  98%     21
+  99%     22
+ 100%     67 (longest request)
+ PS C:\apache-web-server\httpd-2.4.39-o102s-x64-vc14\Apache24\bin>
+
+
+
+
+
+##########
+## azure vm to DLIS service running 5 instances, 2 cores per instance
+##########
+
+azureuser@vm-03:~/apache_bench_tests$ ab -p vec_33.txt -T 'application/text' -c 20 -n 10000 http://52.151.61.230/route/dfp-dlis-poc-ns-aa.model-aaaj
+This is ApacheBench, Version 2.3 <$Revision: 1807734 $>
+Copyright 1996 Adam Twiss, Zeus Technology Ltd, http://www.zeustech.net/
+Licensed to The Apache Software Foundation, http://www.apache.org/
+
+Benchmarking 52.151.61.230 (be patient)
+Completed 1000 requests
+Completed 2000 requests
+Completed 3000 requests
+Completed 4000 requests
+Completed 5000 requests
+Completed 6000 requests
+Completed 7000 requests
+Completed 8000 requests
+Completed 9000 requests
+Completed 10000 requests
+Finished 10000 requests
+
+Server Software:
+Server Hostname:        52.151.61.230
+Server Port:            80
+
+Document Path:          /route/dfp-dlis-poc-ns-aa.model-aaaj
+Document Length:        295 bytes
+
+Concurrency Level:      20
+Time taken for tests:   8.469 seconds
+Complete requests:      10000
+Failed requests:        0
+Total transferred:      5850000 bytes
+Total body sent:        4270000
+HTML transferred:       2950000 bytes
+Requests per second:    1180.82 [#/sec] (mean)
+Time per request:       16.937 [ms] (mean)
+Time per request:       0.847 [ms] (mean, across all concurrent requests)
+Transfer rate:          674.59 [Kbytes/sec] received
+                        492.39 kb/s sent
+                        1166.98 kb/s total
+
+Connection Times (ms)
+              min  mean[+/-sd] median   max
+Connect:        1    1   1.1      1      16
+Processing:     5   16   6.0     15      66
+Waiting:        5   16   6.0     15      66
+Total:          6   17   6.0     16      67
+
+Percentage of the requests served within a certain time (ms)
+  50%     16
+  66%     19
+  75%     20
+  80%     21
+  90%     24
+  95%     27
+  98%     33
+  99%     37
+ 100%     67 (longest request)
+azureuser@vm-03:~/apache_bench_tests$ 
+
+
+
+
+##########
+## azure vm to single linux azure vm running GUnicorn/Flask, 4 cores per instance
+##########
+
+azureuser@vm-03:~/apache_bench_tests$ ab -p vec_33.txt -T 'application/json' -c 12 -n 10000 http://13.66.217.138:8034/model
+This is ApacheBench, Version 2.3 <$Revision: 1807734 $>
+Copyright 1996 Adam Twiss, Zeus Technology Ltd, http://www.zeustech.net/
+Licensed to The Apache Software Foundation, http://www.apache.org/
+
+Benchmarking 13.66.217.138 (be patient)
+Completed 1000 requests
+Completed 2000 requests
+Completed 3000 requests
+Completed 4000 requests
+Completed 5000 requests
+Completed 6000 requests
+Completed 7000 requests
+Completed 8000 requests
+Completed 9000 requests
+Completed 10000 requests
+Finished 10000 requests
+
+Server Software:        gunicorn/19.9.0
+Server Hostname:        13.66.217.138
+Server Port:            8034
+
+Document Path:          /model
+Document Length:        292 bytes
+
+Concurrency Level:      12
+Time taken for tests:   7.510 seconds
+Complete requests:      10000
+Failed requests:        0
+Total transferred:      4500000 bytes
+Total body sent:        4020000
+HTML transferred:       2920000 bytes
+Requests per second:    1331.48 [#/sec] (mean)
+Time per request:       9.013 [ms] (mean)
+Time per request:       0.751 [ms] (mean, across all concurrent requests)
+Transfer rate:          585.12 [Kbytes/sec] received
+                        522.71 kb/s sent
+                        1107.83 kb/s total
+
+Connection Times (ms)
+              min  mean[+/-sd] median   max
+Connect:        0    1   1.0      1      52
+Processing:     3    8   3.5      8      74
+Waiting:        3    8   3.4      8      73
+Total:          4    9   3.6      9      75
+
+Percentage of the requests served within a certain time (ms)
+  50%      9
+  66%      9
+  75%     10
+  80%     10
+  90%     12
+  95%     13
+  98%     15
+  99%     16
+ 100%     75 (longest request)
+azureuser@vm-03:~/apache_bench_tests$
+ 
+
+
+
+
+
+
+
+

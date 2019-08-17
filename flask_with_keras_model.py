@@ -1,18 +1,20 @@
 
-# create requirements.txt with (no shell required, run from serv-stateful-model dir):
-# pipenv lock -r > requirements.txt
-# UPDATE: pipenv lock is not necessary
-# On deployed vm, just do pipenv install
-
-# stress test locally with apache ab (using windows powershell):
-# C:\apache\httpd-2.4.39-o102s-x64-vc14\Apache24\bin> .\ab -n 1000 -c 10 http://localhost:8034/model
-
 # call locally with:
 # $ curl -X GET http://localhost:5000/model -i
 # or:
 # $ curl -X POST -H "Content-Type: application/json" http://localhost:5000/model -d '{"vec":[[24], [253], [215], [215], [38645],
 # [686], [956], [2640], [89970], [325], [967], [325], [12909], [300], [8645], [18645], [686], [2252], [759], [667], [1823], [25458],
 # [408], [56222], [4199], [8007], [948], [481], [586], [379], [742], [767], [742]]}' -i
+
+# stress test locally with apache ab (using windows powershell):
+# C:\apache\httpd-2.4.39-o102s-x64-vc14\Apache24\bin> .\ab -n 1000 -c 10 http://localhost:8034/model
+
+# create requirements.txt with (no shell required, run from serv-stateful-model dir):
+# pipenv lock -r > requirements.txt
+# UPDATE: pipenv lock is not necessary
+# On deployed vm, just do pipenv install
+
+
 
 
 from keras.models import load_model
